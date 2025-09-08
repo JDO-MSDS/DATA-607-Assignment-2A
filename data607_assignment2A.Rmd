@@ -4,6 +4,7 @@ date: "2025-09-07"
 output: html_document
 ---
 
+```{r}
 library(DBI)
 library(RPostgres)
 library(dplyr)
@@ -14,16 +15,16 @@ dbname <- "data607_assignment2A"
 user   <- "postgres"
 host <- "localhost"
 port <- 5432
+```
 
-```{r,
+```{r}
 pwd <- Sys.getenv("PGPASSWORD", "")
 if (pwd == "") {
   if (!requireNamespace("askpass", quietly = TRUE)) install.packages("askpass")
-  pwd <- askpass::askpass("Postgres password")
-}
+  pwd <- askpass::askpass("Postgres password")}
 ```
 
-```{r,
+```{r}
 con <- NULL
 try({
   con <- dbConnect(
@@ -53,17 +54,16 @@ if (!is.null(con)) {
 }
 ```
 
-```{r,
+```{r}
 # table
 ratings_wide <- ratings |>
   select(rater, movie, rating) |>
   pivot_wider(names_from = movie, values_from = rating)
 
 ratings_wide
-}
 ```
 
-```{r, 
+```{r}
 # count missing values per movie
 na_counts <- colSums(is.na(ratings_wide[, -1, drop = FALSE]))  # skip 'rater'
 na_counts
@@ -80,10 +80,10 @@ movie_summary <- ratings |>
   arrange(desc(mean_rating))
 
 movie_summary
-}```
+```
 
 
-```{r, 
+```{r} 
 # simple imputation demo: fill NA with that movie's mean
 ratings_imputed <- ratings_wide
 for (col in names(ratings_imputed)[-1]) {  # skip 'rater'
@@ -92,7 +92,9 @@ for (col in names(ratings_imputed)[-1]) {  # skip 'rater'
   ratings_imputed[[col]][nas] <- m
 }
 ratings_imputed
+```
 
+```{r}
 # simple plot 
 par(mar = c(9,4,3,1))
 barplot(
@@ -102,11 +104,11 @@ barplot(
   ylab = "Average rating (1–5)",
   main = "Average Movie Ratings"
 )
-
+```
 # export CSVs for submission
 write.csv(ratings_wide,  "ratings_wide.csv",  row.names = FALSE)
 write.csv(movie_summary, "movie_summary.csv", row.names = FALSE)
 "Saved ratings_wide.csv and movie_summary.csv"
-}```
+
 
 
